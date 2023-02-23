@@ -1,0 +1,98 @@
+version: '3'
+
+      
+services:
+  jupyter:
+    container_name: jupyter1
+    image: jupyter/scipy-notebook:${JUPYTER_VERSION:-latest}
+    volumes:
+      - ./notebooks:/home/jovyan/
+    ports:
+      - "8888:8888"
+        
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    hostname: zookeeper
+    container_name: zookeeper1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker-1:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker1
+    container_name: broker1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    expose:
+    - "9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker1:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+  broker-2:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker2
+    container_name: broker2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9094"
+    expose:
+    - "9095"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9095,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9095,OUTSIDE://0.0.0.0:9094
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker2:9095
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+  broker-3:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker3
+    container_name: broker3
+    depends_on:
+      - zookeeper
+    ports:
+      - "9096:9096"
+    expose:
+    - "9097"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9097,OUTSIDE://localhost:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9097,OUTSIDE://0.0.0.0:9096
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker3:9097
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop1
+    ports:
+      - 9000:9000
+    environment:
+      - KAFKA_BROKERCONNECT=broker1:9093,broker2:9095,broker3:9097
+    depends_on: 
+      - broker-1
+      
