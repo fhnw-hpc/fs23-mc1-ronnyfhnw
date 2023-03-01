@@ -8,7 +8,8 @@ def on_open(ws):
     subscribe_message = {
         "method": "SUBSCRIBE",
         "params": [
-            "btcusdt@ticker"
+            "btcusdt@ticker",
+            "ethusdt@ticker"
         ],
         "id": 1
     }

@@ -4,6 +4,12 @@
 
 You have a client that continuously accumulates data and wants to process it further. To do this, the client wants to use the [Apache Kafka - Data Streaming Platform](https://kafka.apache.org/) in a first step. In a a second step it will use a different communication pattern. The application runs distributed in different Docker containers. Define what kind of data your client has and what problem they want to solve with it. Describe the initial situation and the problem to be solved. Then implement your methods according to the tasks below. Write a short report and answer the questions of each of the 3 parts bellow. Include meassurements/plots where meaningful.
 
+* Data from Binance Websocket
+* Store data and retrieve newest messages
+* Generate statistics of the past day, week, month, year, 2 years etc.
+* Generate predictions for stock prices
+* 
+
 ### Part 1: Kafka Cluster and Application Setup
 
 1. Set up Kafka locally on your computer, e.g. according to [this Kafka tutorial](https://github.com/mneedham/basic-kafka-tutorial.git). 
@@ -34,10 +40,10 @@ Note, the Docker Compose file available in the repository contains more containe
 
 7. Draw an overview of your application components including interfaces and data flows, for example using a component diagram. Answer the following questions and interpret your experiments or results: 
     
-      * What are the tasks of the components?
-      * Which interfaces do the components have?
-      * Why did you decide to use these components? 
-      * Are there any other design decisions you have made? Which requirements (e.g. libraries, hardware, ...) does a component have?
+   * What are the tasks of the components?
+   * Which interfaces do the components have?
+   * Why did you decide to use these components? 
+   * Are there any other design decisions you have made? Which requirements (e.g. libraries, hardware, ...) does a component have?
 
 #### Bonus 1
 Use other serializers/deserializers instead of JSON for the messages.
