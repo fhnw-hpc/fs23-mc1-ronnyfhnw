@@ -8,7 +8,6 @@ You have a client that continuously accumulates data and wants to process it fur
 * Store data and retrieve newest messages
 * Generate statistics of the past day, week, month, year, 2 years etc.
 * Generate predictions for stock prices
-* 
 
 ### Part 1: Kafka Cluster and Application Setup
 
