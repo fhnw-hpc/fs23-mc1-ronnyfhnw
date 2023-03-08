@@ -37,6 +37,9 @@ Note, the Docker Compose file available in the repository contains more containe
 
 6. Write a data processor and a data sink. The data processor should regularly read and process the data from the data generators. E.g., a calculation or a machine learning application on the retrieved data; a data enrichment; or the extraction of information from the message. Then the processor sends the data to a data sink. In the data sink the data is stored, e.g. in a CSV file. Use appropriate Kafka components and meaningful names of functions, variables, etc. for the implementation. 
 
+data processor --> processing operation
+data sink --> data storage
+
 7. Draw an overview of your application components including interfaces and data flows, for example using a component diagram. Answer the following questions and interpret your experiments or results: 
     
    * What are the tasks of the components?
