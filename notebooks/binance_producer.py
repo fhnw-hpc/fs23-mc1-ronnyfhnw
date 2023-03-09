@@ -24,7 +24,7 @@ def on_open(ws):
 def on_message(ws, message):
     # write data into cluster
     key = str(uuid.uuid4())
-    publish_message(producer, binance_topic, key, message)
+    publish_message(binance_producer, binance_topic, key, message)
     print(f"{datetime.now()}: writing message to cluster: {str(message)[:50]}...")
 
 def on_close(ws):
