@@ -4,6 +4,8 @@ from datetime import datetime
 import websocket
 import uuid
 
+binance_producer = init_binance_producer()
+
 # %%
 def on_open(ws):
     print("Connection opened")

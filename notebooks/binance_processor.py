@@ -6,6 +6,7 @@ from kafka_functions import *
 
 interval_length = 3
 
+binance_consumer = init_binance_consumer()
 print("Starting Binance Processor")
 
 start = datetime.now()
@@ -19,7 +20,8 @@ if __name__ == "__main__":
             column_names = ['EventType', 'EventTime', 'Symbol', 'PriceChange', 'PriceChangePercent', 'WeightedAveragePrice', 'FirstTrade', 'LastPrice', 'LastQuantity', 'BestBidPrice', 'BestBidQuantity', 'BestAskPrice', 'BestAskQuantity', 'OpenPrice', 'HighPrice', 'LowPrice', 'TotalTradedBaseAssetVolume', 'TotalTradedQuoteAssetVolume', 'StatsOpenTime', 'StatsCloseTime', 'FirstTradeId', 'LastTradeId', 'number of trades']
             binance_df = pd.DataFrame(columns=column_names)
 
-            for message in consumed_messages[:10]:
+            process_start = datetime.now()
+            for message in consumed_messages:
                 value = json.loads(message[1])
 
                 # removes starting connection messages
@@ -107,7 +109,7 @@ if __name__ == "__main__":
                                 group.create_dataset(key, (1,), maxshape=(None,))
                             group[key][:] = symbol_dict[key]
                 print("Wrote to file")
-
+            print(f"finished processing in {datetime.now() - process_start}")
             start = datetime.now()
                 
         # elif interval_length - (datetime.now() - start).seconds > 1:

@@ -1,14 +1,17 @@
-from kafka import KafkaProducer, KafkaConsumer
+from kafka import KafkaProducer, KafkaConsumer, KafkaClient
 import json
 import pickle
 import uuid
 import requests
+from kafka.admin import KafkaAdminClient, NewPartitions
+from kafka.errors import TopicAlreadyExistsError
 
 # defining connections
 # server1, server2, server3 = 'broker1:9093', 'broker2:9095', 'broker3:9097'
 server1, server2, server3 = 'localhost:9092', 'localhost:9094', 'localhost:9096'
 servers = [server1, server2, server3]
 binance_topic, twitter_topic = "binance-ws", "twitter"
+# binance_n_partitions = 2
     
 def publish_message(producer_instance, topic_name, key, value):
     if producer_instance.config['value_serializer'] == None or producer_instance.config['key_serializer'] == None:
@@ -50,31 +53,52 @@ twitter_value_serializer, twitter_value_deserializer = lambda x: pickle.dumps(x)
 twitter_key_serializer, twitter_key_deserializer = lambda x: bytes(x, encoding='utf-8'), lambda x: x.decode('utf-8') 
 
 # Producer
-twitter_producer = connect_kafka_producer(servers, twitter_value_serializer, twitter_key_serializer)
+def init_twitter_producer(servers:list=servers, twitter_value_serializer:callable=twitter_value_serializer, twitter_key_serializer:callable=twitter_key_serializer):
+    twitter_producer = connect_kafka_producer(servers, twitter_value_serializer, twitter_key_serializer)
+    return twitter_producer
 
 # Consumer
-twitter_consumer = KafkaConsumer(
-    twitter_topic,
-    auto_offset_reset="earliest",
-    bootstrap_servers=servers,
-    value_deserializer=twitter_value_deserializer,
-    key_deserializer=twitter_key_deserializer,
-    consumer_timeout_ms=3000
-)
+def  init_twitter_consumer(servers:list=servers, topic:str=twitter_topic, value_deserializer:callable=twitter_value_deserializer, key_deserializer:callable=twitter_key_deserializer, consumer_timeout_ms:int=3000):
+    twitter_consumer = KafkaConsumer(
+        topic,
+        auto_offset_reset="earliest",
+        bootstrap_servers=servers,
+        value_deserializer=value_deserializer,
+        key_deserializer=key_deserializer,
+        consumer_timeout_ms=consumer_timeout_ms
+    )
+
+    return twitter_consumer
 
 ## JSON Serializer / Deserializer for Binance data
 binance_value_serializer, binance_value_deserializer = lambda x: bytes(json.dumps(x), 'utf-8'), lambda x: json.loads(x.decode('utf-8'))
 binance_key_serializer, binance_key_deserializer = lambda x: bytes(x, encoding='utf-8'), lambda x: x.decode('utf-8') 
 
 # Producer
-binance_producer = connect_kafka_producer(servers, binance_value_serializer, binance_key_serializer)
-
+def init_binance_producer(servers:list=servers, binance_value_serializer:callable=binance_value_serializer, binance_key_serializer:callable=binance_key_serializer):
+    binance_producer = connect_kafka_producer(servers, binance_value_serializer, binance_key_serializer)
+    return binance_producer
+    
 # Consumer
-binance_consumer = KafkaConsumer(
-    binance_topic, 
-    auto_offset_reset='earliest',
-    bootstrap_servers=servers,
-    api_version=(0, 10), 
-    value_deserializer=binance_value_deserializer,
-    consumer_timeout_ms=1000
-)
+def init_binance_consumer(servers:list=servers, binance_topic:str=binance_topic, binance_value_deserializer:callable=binance_value_deserializer, binance_key_deserializer:callable=binance_key_deserializer, consumer_timeout_ms:int=3000):
+    binance_consumer = KafkaConsumer(
+        binance_topic, 
+        auto_offset_reset='earliest',
+        bootstrap_servers=servers,
+        api_version=(0, 10), 
+        value_deserializer=binance_value_deserializer,
+        key_deserializer=binance_key_deserializer,
+        consumer_timeout_ms=consumer_timeout_ms
+    )
+    return binance_consumer
+
+
+# check if topic exists and number of partitions is set
+def create_topic_with_partitions(admin_client, topic_name, partitions):
+    """Create a topic with the given number of partitions."""
+    topic_partitions = {topic_name: NewPartitions(total_count=partitions)}
+    try:
+        admin_client.create_topics(new_topics=topic_partitions, validate_only=False)
+        print(f"Topic {topic_name} created with {partitions} partitions.")
+    except TopicAlreadyExistsError:
+        print(f"Topic {topic_name} already exists.")
