@@ -5,6 +5,8 @@ import requests
 import uuid
 import json
 
+twitter_producer = init_twitter_producer()
+
 # %%
 url = "https://api.twitter.com/2/tweets/search/recent?query=%23crypto%20OR%20%23ethereum%20OR%20%23eth%20OR%20%23btc%20OR%20%23bitcoin&max_results=100&tweet.fields=created_at,text,author_id"
 

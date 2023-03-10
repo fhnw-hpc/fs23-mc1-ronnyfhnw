@@ -14,6 +14,8 @@ import os
 import time
 from kafka_functions import *
 
+twitter_consumer = init_twitter_consumer()
+
 class TextTransformer:
     '''
     Class for cleaning up tweet text.
