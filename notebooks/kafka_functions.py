@@ -5,6 +5,7 @@ import uuid
 import requests
 from kafka.admin import KafkaAdminClient, NewPartitions
 from kafka.errors import TopicAlreadyExistsError
+from datetime import datetime
 
 # defining connections
 # server1, server2, server3 = 'broker1:9093', 'broker2:9095', 'broker3:9097'
@@ -26,11 +27,21 @@ def publish_message(producer_instance, topic_name, key, value):
         print('Exception in publishing message')
         print(str(ex))
 
-def consume_messages(consumer):
-    messages = []
-    for msg in consumer:
-        messages.append((msg.key, msg.value))
-    print(f"Consumed {len(messages)} messages from Kafka Cluster")
+def consume_messages(consumer, n_messages_to_consume:int=1000, timeout_ms:int=2500):
+    raw_messages = consumer.poll(timeout_ms=timeout_ms
+                                 , max_records=n_messages_to_consume)
+    try:
+        key = list(raw_messages.keys())[0]
+        raw_messages = raw_messages[key]
+    
+        messages = []
+        for raw_message in raw_messages:
+            messages.append((raw_message.key, raw_message.value, raw_message.timestamp))
+    
+        print(f"Consumed {len(messages)} messages from Kafka Cluster")
+    except IndexError:
+        return None
+
     return messages    
 
 def connect_kafka_producer(servers, value_serializer, key_serializer):
@@ -80,7 +91,7 @@ def init_binance_producer(servers:list=servers, binance_value_serializer:callabl
     return binance_producer
     
 # Consumer
-def init_binance_consumer(servers:list=servers, binance_topic:str=binance_topic, binance_value_deserializer:callable=binance_value_deserializer, binance_key_deserializer:callable=binance_key_deserializer, consumer_timeout_ms:int=3000):
+def init_binance_consumer(servers:list=servers, binance_topic:str=binance_topic, binance_value_deserializer:callable=binance_value_deserializer, binance_key_deserializer:callable=binance_key_deserializer, consumer_timeout_ms:int=2000):
     binance_consumer = KafkaConsumer(
         binance_topic, 
         auto_offset_reset='earliest',

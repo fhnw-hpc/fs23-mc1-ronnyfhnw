@@ -21,98 +21,97 @@ if __name__ == "__main__":
             binance_df = pd.DataFrame(columns=column_names)
 
             process_start = datetime.now()
-            for message in consumed_messages:
-                value = json.loads(message[1])
+        
+            try:
+                for message in consumed_messages:
+                    value = json.loads(message[1])
 
-                # removes starting connection messages
-                if 'e' in value.keys():
-                    to_append = pd.DataFrame([value])
-                    to_append.columns = column_names
-                    binance_df = pd.concat((binance_df, to_append))
+                    # removes starting connection messages
+                    if 'e' in value.keys():
+                        to_append = pd.DataFrame([value])
+                        to_append.columns = column_names
+                        binance_df = pd.concat((binance_df, to_append))
 
-            # changing dtypes
-            columns_to_float = ['PriceChange', 'PriceChangePercent', 'WeightedAveragePrice', 'FirstTrade', 'LastPrice', 'LastQuantity', 'BestBidPrice', 'BestBidQuantity', 'BestAskPrice', 'BestAskQuantity', 'OpenPrice', 'HighPrice', 'LowPrice', 'TotalTradedBaseAssetVolume', 'TotalTradedQuoteAssetVolume']
-            for column in columns_to_float:
-                binance_df[column] = binance_df[column].astype(float)
+                # changing dtypes
+                columns_to_float = ['PriceChange', 'PriceChangePercent', 'WeightedAveragePrice', 'FirstTrade', 'LastPrice', 'LastQuantity', 'BestBidPrice', 'BestBidQuantity', 'BestAskPrice', 'BestAskQuantity', 'OpenPrice', 'HighPrice', 'LowPrice', 'TotalTradedBaseAssetVolume', 'TotalTradedQuoteAssetVolume']
+                for column in columns_to_float:
+                    binance_df[column] = binance_df[column].astype(float)
 
-            if filename[13:] in os.listdir("data/binance/"):
-                with h5py.File(filename, "a") as hf:
-                    for symbol in list(binance_df.Symbol.unique()):
-                        symbol_dict = {}
-                        symbol_df = binance_df[binance_df.Symbol == symbol]
-                        symbol_df.sort_values(by='EventTime', ascending=False)
+                if filename[13:] in os.listdir("data/binance/"):
+                    with h5py.File(filename, "a") as hf:
+                        for symbol in list(binance_df.Symbol.unique()):
+                            symbol_dict = {}
+                            symbol_df = binance_df[binance_df.Symbol == symbol]
+                            symbol_df.sort_values(by='EventTime', ascending=False)
 
-                        # setting values
-                        symbol_dict['EventType'] = symbol_df.EventTime.values[-1] # selecting "oldest" value
-                        symbol_dict['Symbol'] = symbol_df.Symbol.values[0]
-                        symbol_dict['PriceChange'] = symbol_df.PriceChange.values[0] - symbol_df.PriceChange.values[-1] # calculating diff from oldest to newest value
-                        symbol_dict['MeanPriceChange'] = symbol_df.PriceChange.mean()
-                        symbol_dict['WeightedAveragePrice'] = symbol_df.WeightedAveragePrice.mean()
-                        symbol_dict['LastPrice'] = symbol_df.LastPrice.values[0]
-                        symbol_dict['LastQuantity'] = symbol_df.LastQuantity.values[0]
-                        symbol_dict['BestBidPrice'] = symbol_df.BestBidPrice.mean()
-                        symbol_dict['BestBidQuantity'] = symbol_df.BestBidQuantity.mean()
-                        symbol_dict['BestAskPrice'] = symbol_df.BestAskPrice.mean()
-                        symbol_dict['BestAskQuantity'] = symbol_df.BestAskQuantity.mean()
-                        symbol_dict['OpenPrice'] = symbol_df.OpenPrice.values[-1]
-                        symbol_dict['HighPrice'] = symbol_df.HighPrice.max()
-                        symbol_dict['MeanHighPrice'] = symbol_df.HighPrice.mean()
-                        symbol_dict['LowPrice'] = symbol_df.LowPrice.min()
-                        symbol_dict['MeanLowPrice'] = symbol_df.LowPrice.mean()
-                        symbol_dict['TotalTradedBaseAssetVolume'] = symbol_df.TotalTradedBaseAssetVolume.sum()
-                        symbol_dict['TotalTradedQuoteAssetVolume'] = symbol_df.TotalTradedQuoteAssetVolume.sum()
-                        symbol_dict['number of trades'] = symbol_df['number of trades'].sum()
+                            # setting values
+                            symbol_dict['EventType'] = symbol_df.EventTime.values[-1] # selecting "oldest" value
+                            symbol_dict['Symbol'] = symbol_df.Symbol.values[0]
+                            symbol_dict['PriceChange'] = symbol_df.PriceChange.values[0] - symbol_df.PriceChange.values[-1] # calculating diff from oldest to newest value
+                            symbol_dict['MeanPriceChange'] = symbol_df.PriceChange.mean()
+                            symbol_dict['WeightedAveragePrice'] = symbol_df.WeightedAveragePrice.mean()
+                            symbol_dict['LastPrice'] = symbol_df.LastPrice.values[0]
+                            symbol_dict['LastQuantity'] = symbol_df.LastQuantity.values[0]
+                            symbol_dict['BestBidPrice'] = symbol_df.BestBidPrice.mean()
+                            symbol_dict['BestBidQuantity'] = symbol_df.BestBidQuantity.mean()
+                            symbol_dict['BestAskPrice'] = symbol_df.BestAskPrice.mean()
+                            symbol_dict['BestAskQuantity'] = symbol_df.BestAskQuantity.mean()
+                            symbol_dict['OpenPrice'] = symbol_df.OpenPrice.values[-1]
+                            symbol_dict['HighPrice'] = symbol_df.HighPrice.max()
+                            symbol_dict['MeanHighPrice'] = symbol_df.HighPrice.mean()
+                            symbol_dict['LowPrice'] = symbol_df.LowPrice.min()
+                            symbol_dict['MeanLowPrice'] = symbol_df.LowPrice.mean()
+                            symbol_dict['TotalTradedBaseAssetVolume'] = symbol_df.TotalTradedBaseAssetVolume.sum()
+                            symbol_dict['TotalTradedQuoteAssetVolume'] = symbol_df.TotalTradedQuoteAssetVolume.sum()
+                            symbol_dict['number of trades'] = symbol_df['number of trades'].sum()
 
-                        group = hf[symbol]
+                            group = hf[symbol]
 
-                        for key in symbol_dict.keys():
-                            dataset = group[key]
-                            n_entries = len(dataset)
-                            dataset.resize((n_entries + 1,))
-                            dataset[n_entries] = symbol_dict[key]
-                print("Appended to file")
+                            for key in symbol_dict.keys():
+                                dataset = group[key]
+                                n_entries = len(dataset)
+                                dataset.resize((n_entries + 1,))
+                                dataset[n_entries] = symbol_dict[key]
+                    print("Appended to file")
 
-            else:
-                with h5py.File(filename, "w") as hf:
-                    for symbol in list(binance_df.Symbol.unique()):
-                        symbol_dict = {}
-                        symbol_df = binance_df[binance_df.Symbol == symbol]
-                        symbol_df.sort_values(by='EventTime', ascending=False)
+                else:
+                    with h5py.File(filename, "w") as hf:
+                        for symbol in list(binance_df.Symbol.unique()):
+                            symbol_dict = {}
+                            symbol_df = binance_df[binance_df.Symbol == symbol]
+                            symbol_df.sort_values(by='EventTime', ascending=False)
 
-                        # setting values
-                        symbol_dict['EventType'] = symbol_df.EventTime.values[-1] # selecting "oldest" value
-                        symbol_dict['Symbol'] = symbol_df.Symbol.values[0]
-                        symbol_dict['PriceChange'] = symbol_df.PriceChange.values[0] - symbol_df.PriceChange.values[-1] # calculating diff from oldest to newest value
-                        symbol_dict['MeanPriceChange'] = symbol_df.PriceChange.mean()
-                        symbol_dict['WeightedAveragePrice'] = symbol_df.WeightedAveragePrice.mean()
-                        symbol_dict['LastPrice'] = symbol_df.LastPrice.values[0]
-                        symbol_dict['LastQuantity'] = symbol_df.LastQuantity.values[0]
-                        symbol_dict['BestBidPrice'] = symbol_df.BestBidPrice.mean()
-                        symbol_dict['BestBidQuantity'] = symbol_df.BestBidQuantity.mean()
-                        symbol_dict['BestAskPrice'] = symbol_df.BestAskPrice.mean()
-                        symbol_dict['BestAskQuantity'] = symbol_df.BestAskQuantity.mean()
-                        symbol_dict['OpenPrice'] = symbol_df.OpenPrice.values[-1]
-                        symbol_dict['HighPrice'] = symbol_df.HighPrice.max()
-                        symbol_dict['MeanHighPrice'] = symbol_df.HighPrice.mean()
-                        symbol_dict['LowPrice'] = symbol_df.LowPrice.min()
-                        symbol_dict['MeanLowPrice'] = symbol_df.LowPrice.mean()
-                        symbol_dict['TotalTradedBaseAssetVolume'] = symbol_df.TotalTradedBaseAssetVolume.sum()
-                        symbol_dict['TotalTradedQuoteAssetVolume'] = symbol_df.TotalTradedQuoteAssetVolume.sum()
-                        symbol_dict['number of trades'] = symbol_df['number of trades'].sum()
+                            # setting values
+                            symbol_dict['EventType'] = symbol_df.EventTime.values[-1] # selecting "oldest" value
+                            symbol_dict['Symbol'] = symbol_df.Symbol.values[0]
+                            symbol_dict['PriceChange'] = symbol_df.PriceChange.values[0] - symbol_df.PriceChange.values[-1] # calculating diff from oldest to newest value
+                            symbol_dict['MeanPriceChange'] = symbol_df.PriceChange.mean()
+                            symbol_dict['WeightedAveragePrice'] = symbol_df.WeightedAveragePrice.mean()
+                            symbol_dict['LastPrice'] = symbol_df.LastPrice.values[0]
+                            symbol_dict['LastQuantity'] = symbol_df.LastQuantity.values[0]
+                            symbol_dict['BestBidPrice'] = symbol_df.BestBidPrice.mean()
+                            symbol_dict['BestBidQuantity'] = symbol_df.BestBidQuantity.mean()
+                            symbol_dict['BestAskPrice'] = symbol_df.BestAskPrice.mean()
+                            symbol_dict['BestAskQuantity'] = symbol_df.BestAskQuantity.mean()
+                            symbol_dict['OpenPrice'] = symbol_df.OpenPrice.values[-1]
+                            symbol_dict['HighPrice'] = symbol_df.HighPrice.max()
+                            symbol_dict['MeanHighPrice'] = symbol_df.HighPrice.mean()
+                            symbol_dict['LowPrice'] = symbol_df.LowPrice.min()
+                            symbol_dict['MeanLowPrice'] = symbol_df.LowPrice.mean()
+                            symbol_dict['TotalTradedBaseAssetVolume'] = symbol_df.TotalTradedBaseAssetVolume.sum()
+                            symbol_dict['TotalTradedQuoteAssetVolume'] = symbol_df.TotalTradedQuoteAssetVolume.sum()
+                            symbol_dict['number of trades'] = symbol_df['number of trades'].sum()
 
-                        group = hf.create_group(symbol)
+                            group = hf.create_group(symbol)
 
-                        for key in symbol_dict.keys():
-                            if key == "Symbol":
-                                group.create_dataset(key, (1,), maxshape=(None,), dtype=h5py.string_dtype(encoding='utf-8'))
-                            else:
-                                group.create_dataset(key, (1,), maxshape=(None,))
-                            group[key][:] = symbol_dict[key]
-                print("Wrote to file")
-            print(f"finished processing in {datetime.now() - process_start}")
-            start = datetime.now()
-                
-        # elif interval_length - (datetime.now() - start).seconds > 1:
-        #     sleep_time = interval_length - (datetime.now() - start).seconds
-        #     print(f"Sleeping for {sleep_time} seconds")
-        #     time.sleep(sleep_time)
+                            for key in symbol_dict.keys():
+                                if key == "Symbol":
+                                    group.create_dataset(key, (1,), maxshape=(None,), dtype=h5py.string_dtype(encoding='utf-8'))
+                                else:
+                                    group.create_dataset(key, (1,), maxshape=(None,))
+                                group[key][:] = symbol_dict[key]
+                    print("Wrote to file")
+                print(f"finished processing in {datetime.now() - process_start}")
+                start = datetime.now()
+            except TypeError:
+                print("no new messages available")
