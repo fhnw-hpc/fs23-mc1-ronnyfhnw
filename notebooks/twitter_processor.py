@@ -99,7 +99,7 @@ if __name__ == '__main__':
             
 
             # loop over tweets and analze sentiment
-            tweet_data = {"created_at": [], "text": [], "negative": [], "compound": [], "positive": []}
+            tweet_data = {"created_at": [], "text": [], "negative": [], "neutral": [], "positive": []}
 
             for i, message in enumerate(messages):
                 value = json.loads(message[1])
@@ -108,7 +108,7 @@ if __name__ == '__main__':
                 tweet_data["text"].append(text)
                 sentiment_scores = analyzer.polarity_scores(text) # 'neg': 0.0, 'neu': 1.0, 'pos': 0.0,
                 tweet_data["negative"].append(sentiment_scores['neg'])
-                tweet_data["compound"].append(sentiment_scores['neu'])
+                tweet_data["neutral"].append(sentiment_scores['neu'])
                 tweet_data["positive"].append(sentiment_scores['pos'])
 
             print(tweet_data)
