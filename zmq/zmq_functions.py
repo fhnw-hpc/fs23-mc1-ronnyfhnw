@@ -8,6 +8,3 @@ def timestamp():
 def send_message(message:dict, socket:zmq.sugar.socket.Socket):
     message = json.dumps(message).encode('utf-8')
     socket.send(message)
-    print("sent message")
-    message = socket.recv()
-    print(message)
