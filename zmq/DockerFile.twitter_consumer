@@ -1,0 +1,9 @@
+FROM python:3.9
+
+COPY twitter_consumer.py .
+COPY secrets.env .
+COPY requirements.txt . 
+COPY zmq_functions.py .
+
+RUN pip3 install -r requirements.txt
+CMD ["python3", "-u", "twitter_consumer.py"]
