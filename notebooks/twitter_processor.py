@@ -14,6 +14,8 @@ import os
 import time
 from kafka_functions import *
 
+check_kafka(twitter_topic)
+
 twitter_consumer = init_twitter_consumer()
 
 class TextTransformer:

@@ -1,0 +1,9 @@
+FROM python:3.9
+
+COPY twitter_producer.py .
+COPY kafka_functions.py .
+COPY secrets.env .
+COPY requirements.txt . 
+RUN pip3 install -r requirements.txt
+
+CMD ["python3", "-u", "twitter_producer.py"]

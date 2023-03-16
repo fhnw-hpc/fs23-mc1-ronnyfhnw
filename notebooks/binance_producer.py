@@ -3,6 +3,13 @@ from kafka_functions import *
 from datetime import datetime
 import websocket
 import uuid
+import kafka
+import time
+import subprocess
+import docker
+
+# %%
+check_kafka(binance_topic)
 
 binance_producer = init_binance_producer()
 

@@ -6,6 +6,8 @@ from kafka_functions import *
 
 interval_length = 3
 
+check_kafka(binance_topic)
+
 binance_consumer = init_binance_consumer()
 print("Starting Binance Processor")
 
