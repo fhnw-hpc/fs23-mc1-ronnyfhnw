@@ -7,7 +7,7 @@ import json
 import kafka
 import time
 
-check_kafka(twitter_topic)
+# check_kafka(twitter_topic)
 
 twitter_producer = init_twitter_producer()
 

@@ -71,9 +71,9 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9096:9096"
+      - "9096:9096" # on host machine
     expose:
-    - "9097"
+    - "9097" # internal
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9097,OUTSIDE://localhost:9096
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
@@ -97,33 +97,25 @@ services:
       - broker-1
   
   binance_producer:
-    image: binance_producer
-    build: notebooks/DockerFile.binance_producer
-    ports:
-      - 8021:8021
+    # build: notebooks/DockerFile.binance_producer
+    image: binance_producer:latest
     depends_on:
       - broker-1
 
   binance_processor:
-    image: binance_processor
-    build: notebooks/DockerFile.binance_processor
-    ports:
-      - 8022:8022
+    # build: notebooks/DockerFile.binance_processor
+    image: binance_processor:latest
     depends_on:
       - broker-1
       
   twitter_producer:
-    image: twitter_producer
-    build: notebooks/DockerFile.twitter_producer
-    ports:
-      - 8023:8023
+    # build: notebooks/DockerFile.twitter_producer
+    image: twitter_producer:latest
     depends_on:
       - broker-1
 
   twitter_processor:
-    image: twitter_processor
-    build: notebooks/DockerFile.twitter_processor
-    ports: 
-      - 8024:8024
+    # build: notebooks/DockerFile.twitter_processor
+    image: twitter_processor:latest
     depends_on:
       - broker-1

@@ -3,7 +3,7 @@ FROM python:3.9
 COPY requirements.txt .
 COPY binance_processor.py .
 COPY kafka_functions.py .
-COPY secrets.env .
+COPY secrets_docker.env secrets.env
 RUN pip3 install -r requirements.txt
 
 CMD ["python3", "-u", "binance_processor.py"]
