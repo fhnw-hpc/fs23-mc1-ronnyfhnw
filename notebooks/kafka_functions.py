@@ -3,9 +3,12 @@ import json
 import pickle
 import uuid
 import requests
+import time
 from kafka.admin import KafkaAdminClient, NewPartitions
 from kafka.errors import TopicAlreadyExistsError
+import kafka
 from datetime import datetime
+import docker
 
 # defining connections
 # server1, server2, server3 = 'broker1:9093', 'broker2:9095', 'broker3:9097'
@@ -113,3 +116,33 @@ def create_topic_with_partitions(admin_client, topic_name, partitions):
         print(f"Topic {topic_name} created with {partitions} partitions.")
     except TopicAlreadyExistsError:
         print(f"Topic {topic_name} already exists.")
+
+
+def check_containers():
+    expected_container_names = ['zookeeper1', 'broker1', 'broker2', 'broker3']
+
+    client = docker.from_env()
+    containers = client.containers.list(all=True, filters={'name':expected_container_names})
+    expected_container_names = [container.name for container in containers]
+    running_containers = client.containers.list(filters={'name':expected_container_names})
+    available_containers = [container.name for container in running_containers]
+
+    for name in expected_container_names:
+        if name not in available_containers:
+            print(f"{name} is not running")        
+            print(f"restarting {name} ...")        
+            client.containers.get(name).restart()
+            print(f"restarted {name}")
+        else:
+            print(f"{name} is running")
+
+def check_kafka(topic:str):
+    consumer = None
+    while consumer == None:
+        try:
+            consumer = kafka.KafkaConsumer(topic, bootstrap_servers=servers)
+        except kafka.errors.NoBrokersAvailable:
+            print("Kafka brokers not available, retrying in 10 seconds ...")
+            time.sleep(10)
+        except kafka.errors.UnrecognizedBrokerVersion:
+            print("Kafka brokers not available, retrying in 10 seconds ...")
