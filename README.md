@@ -4,11 +4,6 @@
 
 You have a client that continuously accumulates data and wants to process it further. To do this, the client wants to use the [Apache Kafka - Data Streaming Platform](https://kafka.apache.org/) in a first step. In a a second step it will use a different communication pattern. The application runs distributed in different Docker containers. Define what kind of data your client has and what problem they want to solve with it. Describe the initial situation and the problem to be solved. Then implement your methods according to the tasks below. Write a short report and answer the questions of each of the 3 parts bellow. Include meassurements/plots where meaningful.
 
-* Data from Binance Websocket
-* Store data and retrieve newest messages
-* Generate statistics of the past day, week, month, year, 2 years etc.
-* Generate predictions for stock prices
-
 ### Part 1: Kafka Cluster and Application Setup
 
 1. Set up Kafka locally on your computer, e.g. according to [this Kafka tutorial](https://github.com/mneedham/basic-kafka-tutorial.git). 
@@ -36,9 +31,6 @@ Note, the Docker Compose file available in the repository contains more containe
     * After testing, stop the endless loop again otherwise your computer resources are unnecessarily occupied or at the limit.
 
 6. Write a data processor and a data sink. The data processor should regularly read and process the data from the data generators. E.g., a calculation or a machine learning application on the retrieved data; a data enrichment; or the extraction of information from the message. Then the processor sends the data to a data sink. In the data sink the data is stored, e.g. in a CSV file. Use appropriate Kafka components and meaningful names of functions, variables, etc. for the implementation. 
-
-data processor --> processing operation
-data sink --> data storage
 
 7. Draw an overview of your application components including interfaces and data flows, for example using a component diagram. Answer the following questions and interpret your experiments or results: 
     
