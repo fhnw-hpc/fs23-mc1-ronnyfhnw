@@ -29,7 +29,7 @@ services:
     ports:
       - "9092:9092"
     expose:
-    - "9092"
+    - "9093"
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9093,OUTSIDE://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
@@ -51,7 +51,7 @@ services:
     ports:
       - "9094:9094"
     expose:
-    - "9094"
+    - "9095"
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9095,OUTSIDE://localhost:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
@@ -73,7 +73,7 @@ services:
     ports:
       - "9096:9096" # on host machine
     expose:
-    - "9096" # internal
+    - "9097" # internal
     environment:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9097,OUTSIDE://localhost:9096
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
@@ -98,24 +98,24 @@ services:
   
   binance_producer:
     build:
-      dockerfile: notebooks/DockerFile.binance_producer
+      dockerfile: DockerFile.binance_producer
     depends_on:
       - broker-1
 
   binance_processor:
     build:
-      dockerfile: notebooks/DockerFile.binance_processor
+      dockerfile: DockerFile.binance_processor
     depends_on:
       - broker-1
       
   twitter_producer:
     build:
-      dockerfile: notebooks/DockerFile.twitter_producer
+      dockerfile: DockerFile.twitter_producer
     depends_on:
       - broker-1
 
   twitter_processor:
     build:
-      dockerfile: notebooks/DockerFile.twitter_processor
+      dockerfile: DockerFile.twitter_processor
     depends_on:
       - broker-1

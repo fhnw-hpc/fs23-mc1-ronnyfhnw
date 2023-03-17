@@ -12,8 +12,11 @@ import docker
 
 # defining connections
 # server1, server2, server3 = 'broker1:9093', 'broker2:9095', 'broker3:9097'
-server1, server2, server3 = 'localhost:9092', 'localhost:9094', 'localhost:9096'
-servers = [server1, server2, server3]
+# server1, server2, server3 = 'localhost:9092', 'localhost:9094', 'localhost:9096'
+
+with open("secrets.env", "r") as f:
+    secrets = json.loads(str(f.read()))
+servers = secrets['servers']
 binance_topic, twitter_topic = "binance-ws", "twitter"
 # binance_n_partitions = 2
     

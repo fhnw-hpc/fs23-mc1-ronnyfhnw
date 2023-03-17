@@ -1,5 +1,7 @@
 FROM python:3.9
 
+RUN mkdir data
+RUN mkdir data/twitter
 COPY twitter_processor.py .
 COPY kafka_functions.py .
 COPY secrets_docker.env secrets.env
