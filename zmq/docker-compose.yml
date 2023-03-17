@@ -3,11 +3,14 @@ version: '3'
 services:
   binance_producer:
     container_name: binance_producer1
+    hostname: binance_producer
     # image: zmq_binance_producer
     build:
       dockerfile: DockerFile.binance_producer
     ports: 
       - "5555:5555"
+    expose:
+      - "5555"
   binance_consumer:
     container_name: binance_consumer_1
     # image: zmq_binance_consumer
@@ -17,11 +20,14 @@ services:
       - binance_producer
   twitter_producer:
     container_name: twitter_producer1
+    hostname: twitter_producer
     # image: zmq_twitter_producer
     build:
       dockerfile: DockerFile.twitter_producer
     ports:
       - "5556:5556"
+    expose:
+      - "5556"
   twitter_consumer:
     container_name: twitter_consumer1
     # image: zmq_twitter_consumer
