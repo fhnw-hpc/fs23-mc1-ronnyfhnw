@@ -65,8 +65,8 @@ Show how your container setup could be integrated into a container orchestration
 
 2. Analyze the performance of your application:
 
-    * Data generators/processors: measure the average time incl. standard deviation required by your data generator loop over several runs and loops. Determine a reasonable number of runs and loop executions for the performance analysis. 
-    * Data generators/processors: determine which call of your processor takes the most time. Which 3 methods are called the most or needed the most time and how much time?
+    * Data generators/processors: measure the average time incl. standard deviation required by your data generator loop over several runs and loops. Determine a reasonable number of runs and loop executions for the performance analysis. (measure time before and after pub-call or sub-call, also measure count)
+    * Data generators/processors: determine which call of your processor takes the most time. Which 3 methods are called the most or needed the most time and how much time (analyse data from step 1) ?
     * Data generators/processors: create a profile of your processor code in a processor.prof file and create 1-2 visualizations of the profile (e.g. with [SnakeViz](https://jiffyclub.github.io/snakeviz/)).
 
 3. Did you detect bottlenecks? Describe and discuss 1-3 detected bottlenecks. 
