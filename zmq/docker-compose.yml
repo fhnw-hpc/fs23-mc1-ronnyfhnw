@@ -10,7 +10,7 @@ services:
     ports: 
       - "5555:5555"
     expose:
-      - "5555"
+      - "5556"
   binance_consumer:
     container_name: binance_consumer_1
     # image: zmq_binance_consumer
@@ -25,9 +25,9 @@ services:
     build:
       dockerfile: DockerFile.twitter_producer
     ports:
-      - "5556:5556"
+      - "5557:5557"
     expose:
-      - "5556"
+      - "5558"
   twitter_consumer:
     container_name: twitter_consumer1
     # image: zmq_twitter_consumer

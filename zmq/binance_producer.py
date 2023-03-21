@@ -17,18 +17,18 @@ context = zmq.Context()
 socket = context.socket(zmq.PUSH)
 socket.bind(binance_server_url)
 
-monitor_socket = context.socket(zmq.PAIR)
-monitor_socket.connect("inproc://monitor")
-
-socket.monitor("inproc://monitor", zmq.EVENT_ACCEPTED)
 SOCKET_CONNECTED = False
+
+poller = zmq.Poller()
+poller.register(socket, zmq.POLLOUT)
 
 print(f"{timestamp()} | waiting for connection from consumer ..")
 while SOCKET_CONNECTED == False:
-    if binance_server_url == monitor_socket.recv().decode('utf-8'):
+    if poller.poll(timeout=1000):
         print(f"{timestamp()} | Connection accepted at {binance_server_url}")
         SOCKET_CONNECTED = True
-
+    else:
+        print(f"{timestamp()} | waiting for connection from consumer")
 # %%
 def on_open(ws):
     print("Connection opened")

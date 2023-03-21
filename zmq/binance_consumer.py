@@ -13,7 +13,7 @@ import time
 with open("secrets.env", "r") as f:
     secrets = json.loads(f.read())
 
-binance_server_url = secrets['binance_producer_url']
+binance_server_url = secrets['binance_producer_url_connect']
 
 data_processing_interval_s = 5
 timeout_s = 10

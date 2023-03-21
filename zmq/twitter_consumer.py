@@ -96,7 +96,7 @@ analyzer = SentimentIntensityAnalyzer()
 with open("secrets.env", "r") as f:
     secrets = json.loads(f.read())
 
-twitter_server_url = secrets['twitter_producer_url']
+twitter_server_url = secrets['twitter_producer_url_connect']
 # %%
 context = zmq.Context()
 print(f"{timestamp()} | Connecting to twitter server…")
