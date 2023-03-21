@@ -97,24 +97,28 @@ services:
       - broker-1
   
   binance_producer:
+    container_name: binance_producer_1
     build:
       dockerfile: DockerFile.binance_producer
     depends_on:
       - broker-1
 
   binance_processor:
+    container_name: binance_processor_1
     build:
       dockerfile: DockerFile.binance_processor
     depends_on:
       - broker-1
       
   twitter_producer:
+    container_name: twitter_producer_1
     build:
       dockerfile: DockerFile.twitter_producer
     depends_on:
       - broker-1
 
   twitter_processor:
+    container_name: twitter_processor_1
     build:
       dockerfile: DockerFile.twitter_processor
     depends_on:
