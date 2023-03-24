@@ -24,8 +24,6 @@ def publish_message(producer_instance, topic_name, key, value):
     if producer_instance.config['value_serializer'] == None or producer_instance.config['key_serializer'] == None:
         raise ValueError("Serializer not specified")
     try:
-        # key_bytes = bytes(key, encoding='utf-8') --> no longer necessary since producers must have a serializer specified
-        # value_bytes = bytes(value, encoding='utf-8')
         producer_instance.send(topic_name, key=key, value=value)
         producer_instance.flush()
         print('Message published successfully.')

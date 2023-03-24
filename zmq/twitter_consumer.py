@@ -128,7 +128,7 @@ if __name__ == '__main__':
                 n_messages += 1
                 print(f"{timestamp()} | Processed tweet {n_messages}")
 
-            if filename[13:] in os.listdir("data/twitter/"):
+            if filename.split("twitter/")[1] in os.listdir("data/twitter/"):
                 with h5py.File(filename, 'a') as hf:
                     tweet_group = hf['tweets']
                     num_tweets = len(tweet_group['created_at']) # get the number of existing tweets

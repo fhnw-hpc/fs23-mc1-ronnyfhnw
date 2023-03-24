@@ -61,7 +61,7 @@ if __name__ == '__main__':
             for column in columns_to_float:
                 binance_df[column] = binance_df[column].astype(float)
 
-            if filename[13:] in os.listdir("data/binance/"):
+            if filename.split("binance/")[1] in os.listdir("data/binance/"):
                 with h5py.File(filename, "a") as hf:
                     for symbol in list(binance_df.Symbol.unique()):
                         symbol_dict = {}

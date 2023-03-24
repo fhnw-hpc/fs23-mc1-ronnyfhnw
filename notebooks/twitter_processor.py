@@ -82,14 +82,14 @@ class TextTransformer:
         text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8', 'ignore')
         return text
 
-tweet_transformer = TextTransformer()
 
-# initialize sentiment analyzer
-nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()
 
 start = datetime.now()
 if __name__ == '__main__':
+    tweet_transformer = TextTransformer()
+    # initialize sentiment analyzer
+    nltk.download('vader_lexicon')
     while True:
         # determine and load file
         filename = "data/twitter/tweets_" + datetime.now().strftime("%d-%m-%Y") + ".h5"
@@ -116,7 +116,7 @@ if __name__ == '__main__':
             print(tweet_data)
                 
             # append to file
-            if filename[13:] in os.listdir("data/twitter/"):
+            if filename.split("twitter/")[1] in os.listdir("data/twitter/"):
                 with h5py.File(filename, 'a') as hf:
                     tweet_group = hf['tweets']
                     num_tweets = len(tweet_group['created_at']) # get the number of existing tweets
