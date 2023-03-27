@@ -83,13 +83,13 @@ class TextTransformer:
         return text
 
 
-analyzer = SentimentIntensityAnalyzer()
 
 start = datetime.now()
 if __name__ == '__main__':
-    tweet_transformer = TextTransformer()
     # initialize sentiment analyzer
     nltk.download('vader_lexicon')
+    tweet_transformer = TextTransformer()
+    analyzer = SentimentIntensityAnalyzer()
     while True:
         # determine and load file
         filename = "data/twitter/tweets_" + datetime.now().strftime("%d-%m-%Y") + ".h5"
