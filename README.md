@@ -61,7 +61,7 @@ Show how your container setup could be integrated into a container orchestration
 
 ### Part 3: Performance Analysis and Evaluation
 
-1. Change the scalability of your communication framework by changing the used resources. (E.g.: add brokers and/or zookeepers and play with parameters in the docker-compose file. Use orders of magnited more producers/consumers.) Perform 2-3 experiments with different configurations.
+1. Change the scalability of your communication framework by changing the used resources. (E.g.: add brokers and/or zookeepers and play with parameters in the docker-compose file. Use orders of magnitude for more producers/consumers.) Perform 2-3 experiments with different configurations.
 
 2. Analyze the performance of your application:
 

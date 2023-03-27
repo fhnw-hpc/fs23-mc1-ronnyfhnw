@@ -1,0 +1,202 @@
+version: '3'
+services:
+  jupyter:
+    container_name: jupyter1
+    image: jupyter/scipy-notebook:${JUPYTER_VERSION:-latest}
+    volumes:
+      - ./notebooks:/home/jovyan/
+    ports:
+      - "8888:8888"
+        
+  zookeeper:
+    image: confluentinc/cp-zookeeper
+    hostname: zookeeper
+    container_name: zookeeper1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker-1:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker1
+    container_name: broker1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    expose:
+    - "9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9093,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker1:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  broker-2:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker2
+    container_name: broker2
+    depends_on:
+      - zookeeper
+    ports:
+      - "9094:9094"
+    expose:
+    - "9095"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9095,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9095,OUTSIDE://0.0.0.0:9094
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker2:9095
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+  broker-3:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker3
+    container_name: broker3
+    depends_on:
+      - zookeeper
+    ports:
+      - "9096:9096" # on host machine
+    expose:
+    - "9097" # internal
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9097,OUTSIDE://localhost:9096
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9097,OUTSIDE://0.0.0.0:9096
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker3:9097
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  broker-4:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker4
+    container_name: broker4
+    depends_on:
+      - zookeeper
+    ports:
+      - "9098:9098" # on host machine
+    expose:
+    - "9099" # internal
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker4:9099,OUTSIDE://localhost:9098
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9099,OUTSIDE://0.0.0.0:9098
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker4:9099
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 33
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  
+  broker-5:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker5
+    container_name: broker5
+    depends_on:
+      - zookeeper
+    ports:
+      - "10000:10000" # on host machine
+    expose:
+    - "10001" # internal
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker5:10001,OUTSIDE://localhost:10000
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:10001,OUTSIDE://0.0.0.0:10000
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker5:10001
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 5
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  
+  broker-6:
+    image: confluentinc/cp-enterprise-kafka:6.0.10
+    hostname: broker6
+    container_name: broker6
+    depends_on:
+      - zookeeper
+    ports:
+      - "10002:10002" # on host machine
+    expose:
+    - "10003" # internal
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker6:10003,OUTSIDE://localhost:10002
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:10003,OUTSIDE://0.0.0.0:10002
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker6:10003
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_BROKER_ID: 6
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop1
+    ports:
+      - 9000:9000
+    environment:
+      - KAFKA_BROKERCONNECT=broker1:9093,broker2:9095,broker3:9097,broker4:9099,broker5:10001,broker6:10003
+    depends_on: 
+      - broker-1
+  
+  binance_producer:
+    build:
+      dockerfile: DockerFile.binance_producer
+    depends_on:
+      - broker-1
+    volumes:
+      - ./data_experiment2/binance:/data/binance
+
+  binance_processor:
+    build:
+      dockerfile: DockerFile.binance_processor
+    volumes:
+      - ./data_experiment2/binance:/data/binance
+    depends_on:
+      - broker-1
+      
+  twitter_producer:
+    build:
+      dockerfile: DockerFile.twitter_producer
+    depends_on:
+      - broker-1
+    volumes:
+      - ./data_experiment2/twitter:/data/twitter
+
+  twitter_processor:
+    build:
+      dockerfile: DockerFile.twitter_processor
+    volumes:
+      - ./data_experiment2/twitter:/data/twitter
+    depends_on:
+      - broker-1
+
+  pe:
+    container_name: pe
+    build:
+      dockerfile: DockerFile.pe
+    volumes:
+      - ./data_experiment2:/data
+    depends_on:
+      - twitter_processor
