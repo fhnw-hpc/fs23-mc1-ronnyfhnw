@@ -108,7 +108,7 @@ services:
     build:
       dockerfile: DockerFile.binance_processor
     volumes:
-      - .:/app
+      - ./data/binance:/data/binance
     depends_on:
       - broker-1
       
@@ -124,6 +124,6 @@ services:
     build:
       dockerfile: DockerFile.twitter_processor
     volumes:
-      - .:/app
+      - ./data/twitter:/data/twitter
     depends_on:
       - broker-1
