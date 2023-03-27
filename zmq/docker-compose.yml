@@ -18,6 +18,8 @@ services:
       dockerfile: DockerFile.binance_consumer
     depends_on:
       - binance_producer
+    volumes:
+      - ./data/binance:/data/binance
   twitter_producer:
     container_name: twitter_producer1
     hostname: twitter_producer
@@ -35,3 +37,5 @@ services:
       dockerfile: DockerFile.twitter_consumer
     depends_on:
       - twitter_producer
+    volumes:
+      - ./data/twitter:/data/twitter
