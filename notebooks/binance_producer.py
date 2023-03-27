@@ -10,7 +10,8 @@ import docker
 
 # %%
 check_kafka(binance_topic)
-pe = PerformanceEvaluator("data/binance/performance_binance_producer.json", "binance_producer")
+pe_producer = init_pe_producer()
+pe = PerformanceEvaluator("binance_producer", pe_producer)
 binance_producer = init_binance_producer()
 
 # %%

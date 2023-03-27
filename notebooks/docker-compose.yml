@@ -131,3 +131,12 @@ services:
       - ./data/twitter:/data/twitter
     depends_on:
       - broker-1
+
+  pe:
+    container_name: pe
+    build:
+      dockerfile: DockerFile.pe
+    volumes:
+      - ./data:/data
+    depends_on:
+      - twitter_processor

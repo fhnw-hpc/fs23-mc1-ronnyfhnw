@@ -7,7 +7,8 @@ import json
 import kafka
 import time
 
-pe = PerformanceEvaluator("data/twitter/performance_twitter_producer.json", "twitter_producer")
+pe_producer = init_pe_producer()
+pe = PerformanceEvaluator("twitter_producer", pe_producer)
 
 check_kafka(twitter_topic)
 twitter_producer = init_twitter_producer()
@@ -40,6 +41,6 @@ if __name__ == "__main__":
                 key = str(uuid.uuid4())
                 publish_message(twitter_producer, twitter_topic, key, formatted_tweet)
                 print(f"{datetime.now()}: writing message to cluster: {formatted_tweet[:50]}...")
-                
+
             pe.end(publish_id)
             timestamp_last_request = datetime.now()

@@ -14,7 +14,8 @@ import os
 import time
 from kafka_functions import *
 
-pe = PerformanceEvaluator("data/twitter/performance_twitter_processor.json", "twitter_processor")
+pe_producer = init_pe_producer()
+pe = PerformanceEvaluator("twitter_processor", pe_producer)
 
 check_kafka(twitter_topic)
 twitter_consumer = init_twitter_consumer()
@@ -105,54 +106,57 @@ if __name__ == '__main__':
             process_id = pe.start("process")
             # loop over tweets and analze sentiment
             tweet_data = {"created_at": [], "text": [], "negative": [], "neutral": [], "positive": []}
+            try:
+                for i, message in enumerate(messages):
+                    value = json.loads(message[1])
+                    tweet_data["created_at"].append(value['created_at'])
+                    text = tweet_transformer.transform(value['text'])
+                    tweet_data["text"].append(text)
+                    sentiment_scores = analyzer.polarity_scores(text) # 'neg': 0.0, 'neu': 1.0, 'pos': 0.0,
+                    tweet_data["negative"].append(sentiment_scores['neg'])
+                    tweet_data["neutral"].append(sentiment_scores['neu'])
+                    tweet_data["positive"].append(sentiment_scores['pos'])
 
-            for i, message in enumerate(messages):
-                value = json.loads(message[1])
-                tweet_data["created_at"].append(value['created_at'])
-                text = tweet_transformer.transform(value['text'])
-                tweet_data["text"].append(text)
-                sentiment_scores = analyzer.polarity_scores(text) # 'neg': 0.0, 'neu': 1.0, 'pos': 0.0,
-                tweet_data["negative"].append(sentiment_scores['neg'])
-                tweet_data["neutral"].append(sentiment_scores['neu'])
-                tweet_data["positive"].append(sentiment_scores['pos'])
+                print(tweet_data)
+                    
+                # append to file
+                if filename.split("twitter/")[1] in os.listdir("data/twitter/"):
+                    data_written = False
+                    while data_written == False:
+                        try:
+                            with h5py.File(filename, 'a') as hf:
+                                tweet_group = hf['tweets']
+                                num_tweets = len(tweet_group['created_at']) # get the number of existing tweets
+                                
+                                # append new tweet data to each dataset
+                                for key in tweet_data.keys():
+                                    new_data = tweet_data[key]
+                                    tweet_group[key].resize((num_tweets + len(new_data),))
+                                    tweet_group[key][num_tweets:num_tweets+len(new_data)] = new_data
+                            print("appended")
+                            data_written = True
+                        except BlockingIOError:
+                            print(f"waiting until file is unlocked ...")
+                            time.sleep(0.5)
+                # create new file
+                else:
+                    with h5py.File(filename, 'w') as hf:
+                        # create a group to store the tweet data
+                        tweet_group = hf.create_group('tweets')
 
-            print(tweet_data)
-                
-            # append to file
-            if filename.split("twitter/")[1] in os.listdir("data/twitter/"):
-                data_written = False
-                while data_written == False:
-                    try:
-                        with h5py.File(filename, 'a') as hf:
-                            tweet_group = hf['tweets']
-                            num_tweets = len(tweet_group['created_at']) # get the number of existing tweets
-                            
-                            # append new tweet data to each dataset
-                            for key in tweet_data.keys():
-                                new_data = tweet_data[key]
-                                tweet_group[key].resize((num_tweets + len(new_data),))
-                                tweet_group[key][num_tweets:num_tweets+len(new_data)] = new_data
-                        print("appended")
-                        data_written = True
-                    except BlockingIOError:
-                        print(f"waiting until file is unlocked ...")
-                        time.sleep(0.5)
-            # create new file
-            else:
-                with h5py.File(filename, 'w') as hf:
-                    # create a group to store the tweet data
-                    tweet_group = hf.create_group('tweets')
-
-                    # create new datasets for each key in the tweet data
-                    for key in tweet_data.keys():
-                        if key == 'created_at' or key == 'text':
-                            tweet_group.create_dataset(key, (0,), maxshape=(None,), dtype=h5py.string_dtype(encoding='utf-8'))
-                        else:
-                            tweet_group.create_dataset(key, (0,), maxshape=(None,))
-                        tweet_group[key].resize((len(tweet_data[key]),))
-                        tweet_group[key][:] = tweet_data[key]
-                print("created")
-            pe.end(process_id)
+                        # create new datasets for each key in the tweet data
+                        for key in tweet_data.keys():
+                            if key == 'created_at' or key == 'text':
+                                tweet_group.create_dataset(key, (0,), maxshape=(None,), dtype=h5py.string_dtype(encoding='utf-8'))
+                            else:
+                                tweet_group.create_dataset(key, (0,), maxshape=(None,))
+                            tweet_group[key].resize((len(tweet_data[key]),))
+                            tweet_group[key][:] = tweet_data[key]
+                    print("created")
+                pe.end(process_id)
+            except TypeError:
+                pe.end(process_id)
+                print("no new messages ...")
 
         elif 10 - (datetime.now() - start).seconds > 1:
             sleep_time = 10 - (datetime.now() - start).seconds

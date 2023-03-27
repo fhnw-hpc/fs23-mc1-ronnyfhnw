@@ -6,8 +6,8 @@ from kafka_functions import *
 
 interval_length = 3
 
-pe = PerformanceEvaluator("data/binance/performance_binance_processor.json", "binance_processor")
-print("started Performance Evaluator ...")
+pe_producer = init_pe_producer()
+pe = PerformanceEvaluator("binance_processor", pe_producer)
 
 check_kafka(binance_topic)
 
