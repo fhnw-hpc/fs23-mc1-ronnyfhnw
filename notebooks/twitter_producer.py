@@ -7,8 +7,9 @@ import json
 import kafka
 import time
 
-check_kafka(twitter_topic)
+pe = PerformanceEvaluator("data/twitter/performance_twitter_producer.json", "twitter_producer")
 
+check_kafka(twitter_topic)
 twitter_producer = init_twitter_producer()
 
 # %%
@@ -26,7 +27,11 @@ if __name__ == "__main__":
         # time limit to stay within api regulations
         if (datetime.now() - timestamp_last_request).seconds > 10:
             # get tweets
+            api_id = pe.start("api_call")
             tweets = json.loads(requests.get(url=url, headers={'Authorization': f"Bearer {bearerToken}"}).text)['data']
+            pe.end(api_id)
+
+            publish_id = pe.start("publish")
             for tweet in tweets:
                 # formatting for json serializing
                 formatted_tweet = json.dumps(tweet)
@@ -36,4 +41,5 @@ if __name__ == "__main__":
                 publish_message(twitter_producer, twitter_topic, key, formatted_tweet)
                 print(f"{datetime.now()}: writing message to cluster: {formatted_tweet[:50]}...")
                 
+            pe.end(publish_id)
             timestamp_last_request = datetime.now()

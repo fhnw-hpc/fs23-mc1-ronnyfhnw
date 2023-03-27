@@ -9,6 +9,7 @@ from kafka.errors import TopicAlreadyExistsError
 import kafka
 from datetime import datetime
 import docker
+import os
 
 # defining connections
 # server1, server2, server3 = 'broker1:9093', 'broker2:9095', 'broker3:9097'
@@ -147,3 +148,71 @@ def check_kafka(topic:str):
             time.sleep(10)
         except kafka.errors.UnrecognizedBrokerVersion:
             print("Kafka brokers not available, retrying in 10 seconds ...")
+
+class PerformanceEvaluator:
+    def __init__(self, measurements_url:str, service_name:str):
+        self.measurements_url = measurements_url
+        self.measurement_id = 0
+        self.measurements = {}
+        self.service_name = service_name
+
+        # create file
+        try:
+            if measurements_url.split('/')[-1] not in os.listdir("/".join(measurements_url.split('/')[:-1])):
+                with open(self.measurements_url, 'w') as f:
+                    data = {
+                        'measurement_id': [],
+                        'start': [],
+                        'end': [],
+                        'duration': [],
+                        'service_name': [],
+                        'process_name': []
+                    }
+                    json.dump(data, f)
+        except BlockingIOError:
+            print("other service is creating file ...")
+
+    def start(self, process_name:str):
+        # start unique measurement
+        measurement_id = self.measurement_id
+        self.measurement_id += 1
+        start = datetime.now()
+        self.measurements[measurement_id] = {
+            'start': start,
+            'process_name': process_name
+            }
+        
+        return measurement_id
+
+    def end(self, measurement_id):
+        # end measurment
+        end = datetime.now()
+        start = self.measurements[measurement_id]['start']
+        process_name = self.measurements[measurement_id]['process_name']
+        del self.measurements[measurement_id]
+        duration = (end - start).total_seconds()
+
+        # append data
+        measurements_written = False
+        while measurements_written == False:
+            try:
+                with open(self.measurements_url, 'r') as f:
+                    data = json.load(f)
+                print(data)
+
+                data['measurement_id'].append(measurement_id)
+                data['start'].append(start.strftime("%d-%m-%Y %H:%M:%S.%f"))
+                data['end'].append(end.strftime("%d-%m-%Y %H:%M:%S.%f"))
+                data['duration'].append(duration)
+                data['process_name'].append(process_name)
+                data['service_name'].append(self.service_name)
+
+                print(data)
+
+                with open(self.measurements_url, 'w') as f:
+                    json.dump(data, f)      
+                measurements_written = True
+
+            except BlockingIOError:
+                print("waiting until file is unlocked ...")
+                time.sleep(0.1)

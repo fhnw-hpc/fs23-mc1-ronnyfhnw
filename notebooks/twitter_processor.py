@@ -14,8 +14,9 @@ import os
 import time
 from kafka_functions import *
 
-check_kafka(twitter_topic)
+pe = PerformanceEvaluator("data/twitter/performance_twitter_processor.json", "twitter_processor")
 
+check_kafka(twitter_topic)
 twitter_consumer = init_twitter_consumer()
 
 class TextTransformer:
@@ -96,10 +97,12 @@ if __name__ == '__main__':
 
         if (datetime.now() - start).seconds >= 10:
             # consume messages and process
+            consume_id = pe.start("consume")
             messages = consume_messages(twitter_consumer)
+            pe.end(consume_id)
             start = datetime.now()
             
-
+            process_id = pe.start("process")
             # loop over tweets and analze sentiment
             tweet_data = {"created_at": [], "text": [], "negative": [], "neutral": [], "positive": []}
 
@@ -117,16 +120,23 @@ if __name__ == '__main__':
                 
             # append to file
             if filename.split("twitter/")[1] in os.listdir("data/twitter/"):
-                with h5py.File(filename, 'a') as hf:
-                    tweet_group = hf['tweets']
-                    num_tweets = len(tweet_group['created_at']) # get the number of existing tweets
-                    
-                    # append new tweet data to each dataset
-                    for key in tweet_data.keys():
-                        new_data = tweet_data[key]
-                        tweet_group[key].resize((num_tweets + len(new_data),))
-                        tweet_group[key][num_tweets:num_tweets+len(new_data)] = new_data
-                print("appended")
+                data_written = False
+                while data_written == False:
+                    try:
+                        with h5py.File(filename, 'a') as hf:
+                            tweet_group = hf['tweets']
+                            num_tweets = len(tweet_group['created_at']) # get the number of existing tweets
+                            
+                            # append new tweet data to each dataset
+                            for key in tweet_data.keys():
+                                new_data = tweet_data[key]
+                                tweet_group[key].resize((num_tweets + len(new_data),))
+                                tweet_group[key][num_tweets:num_tweets+len(new_data)] = new_data
+                        print("appended")
+                        data_written = True
+                    except BlockingIOError:
+                        print(f"waiting until file is unlocked ...")
+                        time.sleep(0.5)
             # create new file
             else:
                 with h5py.File(filename, 'w') as hf:
@@ -142,6 +152,7 @@ if __name__ == '__main__':
                         tweet_group[key].resize((len(tweet_data[key]),))
                         tweet_group[key][:] = tweet_data[key]
                 print("created")
+            pe.end(process_id)
 
         elif 10 - (datetime.now() - start).seconds > 1:
             sleep_time = 10 - (datetime.now() - start).seconds

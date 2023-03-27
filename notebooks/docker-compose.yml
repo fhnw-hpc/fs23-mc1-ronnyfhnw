@@ -102,6 +102,8 @@ services:
       dockerfile: DockerFile.binance_producer
     depends_on:
       - broker-1
+    volumes:
+      - ./data/binance:/data/binance
 
   binance_processor:
     container_name: binance_processor_1
@@ -118,6 +120,8 @@ services:
       dockerfile: DockerFile.twitter_producer
     depends_on:
       - broker-1
+    volumes:
+      - ./data/twitter:/data/twitter
 
   twitter_processor:
     container_name: twitter_processor_1

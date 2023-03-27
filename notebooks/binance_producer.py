@@ -10,7 +10,7 @@ import docker
 
 # %%
 check_kafka(binance_topic)
-
+pe = PerformanceEvaluator("data/binance/performance_binance_producer.json", "binance_producer")
 binance_producer = init_binance_producer()
 
 # %%
@@ -33,7 +33,9 @@ def on_open(ws):
 def on_message(ws, message):
     # write data into cluster
     key = str(uuid.uuid4())
+    publish_id = pe.start("publish")
     publish_message(binance_producer, binance_topic, key, message)
+    pe.end(publish_id)
     print(f"{datetime.now()}: writing message to cluster: {str(message)[:50]}...")
 
 def on_close(ws):
