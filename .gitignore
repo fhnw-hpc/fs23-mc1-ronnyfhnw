@@ -1,6 +1,9 @@
 # h5
 *.h5
 
+# vscode
+.vscode
+
 # performance measurements
 *pe*.pkl
 
