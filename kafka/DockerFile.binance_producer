@@ -1,0 +1,11 @@
+FROM python:3.9
+
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+COPY binance_producer.py .
+RUN mkdir data
+RUN mkdir data/binance
+COPY secrets_docker.env secrets.env
+COPY kafka_functions.py .
+
+CMD ["python3", "-u", "binance_producer.py"]

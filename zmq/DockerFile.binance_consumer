@@ -1,0 +1,12 @@
+FROM python:3.9
+
+
+COPY requirements.txt . 
+RUN pip3 install -r requirements.txt
+RUN mkdir data
+RUN mkdir data/binance
+COPY binance_consumer.py .
+COPY secrets_docker.env secrets.env
+COPY zmq_functions.py .
+
+CMD ["python3", "-u", "binance_consumer.py"]

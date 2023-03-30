@@ -1,3 +1,12 @@
+# h5
+*.h5
+
+# vscode
+.vscode
+
+# performance measurements
+*pe*.pkl
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -102,7 +111,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+*.env
 .venv
 env/
 venv/
